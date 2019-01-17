@@ -17,7 +17,7 @@
 
 import sys
 
-from pddlpy import DomainProblem
+from domain import DomainProblem
 
 from state import State
 
@@ -51,7 +51,7 @@ def main(argv):
     #         print("\teff+", o.effect_pos)
     #         print("\teff-", o.effect_neg)
 
-    initial = State({tuple(atom.predicate) for atom in domprob.initialstate()})
+    initial = State(frozenset({tuple(atom.predicate) for atom in domprob.initialstate()}))
     space = {initial}
 
     ground_operators = []
@@ -61,15 +61,19 @@ def main(argv):
 
     pending = [initial]
 
-    while pending:
-        current = pending.pop()
-        for o in ground_operators:
-            next_state = current.apply(o)
-            if next_state and next_state not in space:
-                pending.append(next_state)
-                space.add(next_state)
+    from aco import ff
+    goals = set(tuple(atom.predicate) for atom in domprob.goals())
+    print(ff(initial, ground_operators, goals))
 
-        print(len(space))
+    # while pending:
+    #     current = pending.pop()
+    #     for o in ground_operators:
+    #         next_state = current.apply(o)
+    #         if next_state and next_state not in space:
+    #             pending.append(next_state)
+    #             space.add(next_state)
+    #
+    #     print(len(space))
 
 
 if __name__ == '__main__':
