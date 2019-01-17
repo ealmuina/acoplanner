@@ -1,8 +1,9 @@
 class ACO:
-    def __init__(self, alpha, beta, operators):
+    def __init__(self, alpha, beta, operators, goals):
         self.alpha = alpha
         self.beta = beta
         self.operators = operators
+        self.goals = goals
 
         self.pheromone = {}  # (state, action) -> pheromone level
         self.evaluation = {}  # (state, action) -> heuristic value
@@ -13,8 +14,7 @@ class ACO:
         if result is not None:
             return result
 
-        # TODO Do actual heuristics
-
+        result = 1 / ff(state, self.operators, self.goals)
         self.evaluation[(state, action)] = result
         return result
 
@@ -54,6 +54,25 @@ def ff(state, operators, goals):
         actions.append(next_actions)
         k += 1
 
-    # TODO Build relaxed plan
+    layers.reverse()
+    actions.reverse()
 
-    return k
+    current_goals = set(goals)
+    result = []
+    for l, a in zip(layers[1:], actions):
+        next_goals = set()
+        result.append(set())
+        for g in list(current_goals):
+            if g in l:
+                next_goals.add(g)
+                continue
+            for o in a:
+                if g in o.effect_pos:
+                    result[-1].add(o)
+                    current_goals.remove(g)
+                    next_goals.update(o.precondition_pos)
+                    break
+        next_goals.update(current_goals)
+        current_goals = next_goals
+
+    return sum(map(lambda s: len(s), result))
