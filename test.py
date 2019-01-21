@@ -61,9 +61,9 @@ def main(argv):
 
     pending = [initial]
 
-    from aco import ff
+    # from aco import ff
     goals = set(tuple(atom.predicate) for atom in domprob.goals())
-    print(ff(initial, ground_operators, goals))
+    # print(ff(initial, ground_operators, goals))
 
     # while pending:
     #     current = pending.pop()
@@ -74,6 +74,15 @@ def main(argv):
     #             space.add(next_state)
     #
     #     print(len(space))
+
+    print()
+
+    from aco import ACO
+    planner = ACO(initial, ground_operators, goals)
+    s = planner.solve()
+
+    for i, action in enumerate(s):
+        print(f'{i+1} \t {action.operator_name} {str(action.variable_list)}')
 
 
 if __name__ == '__main__':

@@ -30,6 +30,18 @@ class State:
 
         return State(frozenset(result))
 
+    def applicable_actions(self, operators):
+        for op in operators:
+            # Check negative preconditions
+            if self.predicates & op.precondition_neg:
+                continue
+
+            # Check positive preconditions
+            if not op.precondition_pos.issubset(self.predicates):
+                continue
+
+            yield op
+
     def is_goal(self, goals):
         return goals.issubset(self.predicates)
 

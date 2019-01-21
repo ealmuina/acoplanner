@@ -8,7 +8,7 @@ class ACO:
         self.goals = goals
 
         self.ants = 10
-        self.iterations = 5000
+        self.iterations = 1
         self.alpha = 2
         self.beta = 5
         self.rho = 0.15
@@ -25,14 +25,13 @@ class ACO:
             acum += prob
             if acum >= r:
                 return prob, action
-        raise RuntimeError('aaaaaaaaaaaaaaaaaaaaaaaaaa')
 
     def _evaluate_plan(self, plan):
         t = 0
         for i, (_, _, prob) in enumerate(plan):
-            if prob > plan[t][1]:
+            if prob > plan[t][2]:
                 t = i
-        return t, plan[t][1] if plan else -1
+        return t, plan[t][2] if plan else -1
 
     def _evaluate_step(self, state, action):
         result = self.evaluation.get((state, action), None)
@@ -53,11 +52,13 @@ class ACO:
         a = self.alpha
         b = self.beta
 
-        num = self.pheromone[(state, action)] ** a * self._evaluate_step(state, action) ** b
+        pheromone = self.pheromone.get((state, action), 1)
+
+        num = pheromone ** a * self._evaluate_step(state, action) ** b
         den = sum(
-            (self.pheromone[(state, op)] ** a * self._evaluate_step(state, op) ** b for op in self.operators)
+            (pheromone ** a * self._evaluate_step(state, op) ** b for op in state.applicable_actions(self.operators))
         )
-        return num / den
+        return num / den if den else 0
 
     def _is_improvement(self, plan_a, plan_b):
         t_a, prob_a = self._evaluate_plan(plan_a)
@@ -84,7 +85,7 @@ class ACO:
             updates[(state, action)] = p + q_iter / (q_best + q_iter)
 
         for (state, action), p in updates.items():
-            tau = self.pheromone.get((state, action), 0)
+            tau = self.pheromone.get((state, action), 1)
             self.pheromone[(state, action)] = (1 - self.rho) * tau + self.rho * updates[(state, action)]
 
     def solve(self):
@@ -98,8 +99,11 @@ class ACO:
 
                 for i in range(self.max_length):
                     probs = []
-                    for op in self.operators:
-                        probs.append((self._get_probability(state, op), op))
+                    for op in state.applicable_actions(self.operators):
+                        p = self._get_probability(state, op)
+                        probs.append((p, op))
+                    if not probs:
+                        continue
                     prob, a_k = self._choose_action(probs)
                     s_p.append((state, a_k, prob))
                     state = state.apply(a_k)
@@ -111,6 +115,17 @@ class ACO:
                 s_best = s_iter
 
             self._update_pheromones(s_best, s_iter)
+
+        return _get_plan_actions(s_best)
+
+
+def _get_plan_actions(plan):
+    solution = []
+    for state, action, prob in plan:
+        solution.append(action)
+        if prob > 1 - 1e-5:
+            break
+    return solution
 
 
 def ff(state, operators, goals):
