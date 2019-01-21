@@ -32,3 +32,11 @@ class State:
 
     def is_goal(self, goals):
         return goals.issubset(self.predicates)
+
+
+class Plan:
+    def __init__(self):
+        self.states = []
+        self.actions = []
+        self.t_min = None
+        self.h_min = None
