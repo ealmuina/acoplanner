@@ -4,5 +4,5 @@
   "alpha": 2,
   "beta": 5,
   "rho": 0.5,
-  "max_length": 100
+  "max_length": 30
 }

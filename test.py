@@ -9,12 +9,11 @@ from state import State
 
 
 def main(argv):
-    demonumber = int(argv[1])
-    domainfile = "./examples-pddl/domain-0%d.pddl" % demonumber
-    problemfile = "./examples-pddl/problem-0%d.pddl" % demonumber
+    domainfile = "./examples-pddl/domains/%s.pddl" % argv[2]
+    problemfile = "./examples-pddl/problems/%s.pddl" % argv[3]
     domprob = DomainProblem(domainfile, problemfile)
 
-    with open(argv[2]) as file:
+    with open(argv[1]) as file:
         config = json.load(file)
 
     initial = State(frozenset({tuple(atom.predicate) for atom in domprob.initialstate()}))

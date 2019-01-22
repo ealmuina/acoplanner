@@ -112,19 +112,19 @@ class ACO:
             if self._is_improvement(s_iter, s_best):
                 s_best = s_iter
 
-            plan = cut_plan(s_best)
+            plan = cut_plan(s_best, self.goals)
             if plan[-1][0].apply(plan[-1][1]).is_goal(self.goals):
                 break
 
             self._update_pheromones(s_best, s_iter)
 
-        return cut_plan(s_best)
+        return cut_plan(s_best, self.goals)
 
 
-def cut_plan(plan):
+def cut_plan(plan, goals):
     solution = []
     for state, action, prob in plan:
         solution.append((state, action, prob))
-        if prob > 1 - 1e-5:
+        if prob > 1.0 - 1e-5 and state.apply(action).is_goal(goals):
             break
     return solution
