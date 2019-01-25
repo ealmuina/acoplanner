@@ -6,10 +6,10 @@ from planner import run
 
 def main(argv):
     tests = [
-        ('domain-01', 'problem-01'),
         ('domain-03', 'problem-03'),
         ('domain-04', 'problem-04'),
-        ('domain-05', 'problem-05')
+        ('driverlog', 'driverlog-01'),
+        ('rover', 'rover-01')
     ]
 
     with open(argv[1]) as file:
