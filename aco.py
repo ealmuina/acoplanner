@@ -3,7 +3,7 @@ import random
 from heuristics import ff
 
 
-class ACO:
+class ACOPlanner:
     def __init__(self, init_state, operators, goals, config):
         self.init_state = init_state
         self.operators = operators
